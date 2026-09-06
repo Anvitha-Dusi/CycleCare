@@ -26,8 +26,6 @@ Period predictions are estimates based on your historical data only.
 ### Backend
 - Node.js
 - Express.js
-
-### Database
 - MongoDB
 - Mongoose
 
@@ -39,12 +37,14 @@ Period predictions are estimates based on your historical data only.
 
 ```
 CycleCare/
-├── client/                 # React frontend
+├── client/                    # React + Vite frontend
 │   ├── src/
-│   │   ├── components/    # Reusable components
-│   │   ├── pages/         # Page components
-│   │   ├── services/      # API services
-│   │   ├── context/       # React context
+│   │   ├── components/        # Reusable React components
+│   │   │   ├── Navbar.jsx
+│   │   │   └── HealthCheck.jsx
+│   │   ├── pages/             # Page components
+│   │   ├── services/          # API services
+│   │   ├── context/           # React context
 │   │   ├── App.jsx
 │   │   ├── main.jsx
 │   │   └── index.css
@@ -52,14 +52,19 @@ CycleCare/
 │   ├── vite.config.js
 │   └── package.json
 │
-├── server/                # Express backend
-│   ├── models/            # Database models
-│   ├── routes/            # API routes
-│   ├── controllers/       # Route controllers
-│   ├── middleware/        # Custom middleware
-│   ├── config/            # Configuration files
-│   ├── server.js          # Main server file
-│   ├── .env               # Environment variables
+├── server/                    # Express + Node backend
+│   ├── config/                # Configuration
+│   │   └── database.js        # MongoDB connection
+│   ├── models/                # Database models
+│   │   ├── User.js            # User schema
+│   │   ├── Period.js          # Period schema
+│   │   ├── Symptom.js         # Symptom schema
+│   │   └── index.js
+│   ├── routes/                # API routes (coming soon)
+│   ├── controllers/           # Route controllers (coming soon)
+│   ├── middleware/            # Custom middleware (coming soon)
+│   ├── server.js              # Main server file
+│   ├── .env                   # Environment variables
 │   └── package.json
 │
 └── README.md
@@ -72,6 +77,19 @@ CycleCare/
 - npm or yarn
 - MongoDB (local or cloud)
 
+### MongoDB Installation
+
+**Option 1: Local MongoDB (Windows/Mac/Linux)**
+- Download from https://www.mongodb.com/try/download/community
+- Follow installation instructions
+- Start MongoDB service
+
+**Option 2: MongoDB Atlas (Cloud - Recommended for beginners)**
+- Go to https://www.mongodb.com/cloud/atlas
+- Create a free account
+- Create a cluster
+- Get your connection string and update `.env`
+
 ### Backend Setup
 
 ```bash
@@ -80,7 +98,13 @@ npm install
 npm run dev
 ```
 
-The backend will run on `http://localhost:5000`
+You should see:
+```
+✅ MongoDB Connected: localhost
+🚀 CycleCare Backend Server running on http://localhost:5000
+📝 Health check available at http://localhost:5000/api/health
+🗄️  Database status available at http://localhost:5000/api/db-status
+```
 
 ### Frontend Setup
 
@@ -90,26 +114,57 @@ npm install
 npm run dev
 ```
 
-The frontend will run on `http://localhost:3000`
+You should see:
+```
+➜  Local:   http://localhost:3000/
+```
 
-## Testing the Health Check
+## Testing
 
-Once both servers are running:
+### Health Check
+- Open http://localhost:3000 in your browser
+- You should see the System Status panel
+- It will show Backend and Database connection status
 
-1. Open your browser to `http://localhost:3000`
-2. You should see the CycleCare homepage
-3. The health check component will automatically test the connection to the backend
-4. You can also manually test: `http://localhost:5000/api/health`
+### Backend Endpoints
+
+**Health Check:**
+```bash
+curl http://localhost:5000/api/health
+```
+
+**Database Status:**
+```bash
+curl http://localhost:5000/api/db-status
+```
+
+## Phase Progress
+
+- [x] Phase 1: Project Setup
+- [x] Phase 2: MongoDB & Models
+- [ ] Phase 3: Authentication (JWT & bcryptjs)
+- [ ] Phase 4: Period API Routes & Controllers
+- [ ] Phase 5: Symptom API Routes & Controllers
+- [ ] Phase 6: Dashboard & Analytics
+- [ ] Phase 7: Frontend Components & Pages
+- [ ] Phase 8: Styling & Responsive UI
 
 ## Features (Planned)
 
-- [x] Project Structure
-- [x] Basic Backend
-- [x] Basic Frontend
-- [ ] User Authentication
+- [ ] User Registration
+- [ ] User Login
+- [ ] JWT Authentication
+- [ ] Protected Routes
 - [ ] Period Logging
-- [ ] Symptom Tracking
+- [ ] Period Editing/Deleting
+- [ ] Symptom Logging
+- [ ] Mood & Energy Tracking
+- [ ] Personal Notes
 - [ ] Calendar View
+- [ ] Cycle History
+- [ ] Average Cycle Calculation
+- [ ] Estimated Next Period
+- [ ] Dashboard
 - [ ] Analytics & Charts
 - [ ] Responsive UI
 
