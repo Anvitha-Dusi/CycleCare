@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CycleCare - Menstrual Cycle Tracking & Insights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="landing-bg">
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/" class="brand-logo" id="nav-brand-logo">
+        <span class="brand-icon">🌸</span>
+        <span>CycleCare</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#educational-disclaimer" class="nav-link">Educational Notice</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-buttons">
+        <a href="/login" class="btn btn-outline btn-sm" id="btn-nav-login">Log In</a>
+        <a href="/register" class="btn btn-primary btn-sm" id="btn-nav-register">Register</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero-section">
+      <div class="container">
+        <h1 class="hero-title">
+          Compassionate, Simple & Transparent <span class="hero-highlight">Cycle Tracking</span>
+        </h1>
+        <p class="hero-subtitle">
+          Record your menstrual cycle data, observe your natural rhythm, and see estimated upcoming period dates with complete clarity and data privacy.
+        </p>
+
+        <div class="hero-actions">
+          <a href="/register" class="btn btn-primary btn-lg" id="btn-hero-start">Get Started Free</a>
+          <a href="/login" class="btn btn-secondary btn-lg" id="btn-hero-login">Log In to Dashboard</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Educational Medical Disclaimer -->
+    <section class="container" id="educational-disclaimer">
+      <div class="disclaimer-banner">
+        <div class="disclaimer-icon">⚠️</div>
+        <div class="disclaimer-content">
+          <h4>Important Educational Project Notice</h4>
+          <p>
+            CycleCare is designed as an educational web-development project demonstrating full-stack concepts (Flask, MySQL, and REST APIs). 
+            Upcoming cycle predictions are <strong>mathematical estimates based strictly on user-entered historical averages</strong>. 
+            CycleCare is <strong>not a medical device</strong> and should never be used for clinical diagnosis, medical treatment, or contraception planning.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container" id="features" style="margin-bottom: 4rem;">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">📅</div>
+          <h3 class="feature-title">Accurate Cycle Logs</h3>
+          <p class="feature-desc">
+            Easily record period start dates, durations, cycle lengths, and optional wellness notes with complete CRUD control.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">📊</div>
+          <h3 class="feature-title">Transparent Estimation</h3>
+          <p class="feature-desc">
+            See your estimated next cycle calculated via a clear mathematical formula based on your actual recorded averages.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">🔒</div>
+          <h3 class="feature-title">Secure & Isolated Data</h3>
+          <p class="feature-desc">
+            Protected user authentication with hashed passwords, parameterized database queries, and strict per-user record isolation.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div>
+        <strong>CycleCare</strong> &copy; 2026 &bull; Educational Full-Stack Project
+      </div>
+      <ul class="footer-links">
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register">Register</a></li>
+        <li><a href="#educational-disclaimer">Medical Disclaimer</a></li>
+      </ul>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - CycleCare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/dashboard" class="brand-logo">
+        <span class="brand-icon">🌸</span>
+        <span>CycleCare</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/dashboard" class="nav-link active">Dashboard</a></li>
+          <li><a href="/history" class="nav-link">Cycle History</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-buttons">
+        <button class="btn btn-primary btn-sm" onclick="openAddCycleModal()">+ Add Cycle</button>
+        <button class="btn btn-outline btn-sm" onclick="handleLogout()">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Content -->
+  <main class="container" style="flex: 1;">
+    
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+      <div class="dashboard-title-area">
+        <h1 id="dashboard-welcome">Welcome back, {{ user_name }}!</h1>
+        <p>Here is your menstrual cycle overview, health rhythm, and next period estimate.</p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn btn-primary" onclick="openAddCycleModal()">
+          <span>➕</span> Record New Cycle
+        </button>
+        <a href="/history" class="btn btn-secondary">
+          <span>📋</span> View Full History
+        </a>
+      </div>
+    </section>
+
+    <!-- Educational Medical Disclaimer -->
+    <div class="disclaimer-banner">
+      <div class="disclaimer-icon">⚠️</div>
+      <div class="disclaimer-content">
+        <h4>Educational Project Notice & Medical Disclaimer</h4>
+        <p>
+          CycleCare is an educational full-stack web application. All cycle forecasts and upcoming dates 
+          are <strong>transparent mathematical estimations calculated from your logged averages</strong>. 
+          They are <strong>not medical advice</strong> and must not be relied upon for clinical contraception or diagnostic health decisions.
+        </p>
+      </div>
+    </div>
+
+    <!-- Highlighted Estimate Banner -->
+    <div class="estimate-banner" id="estimate-banner" style="display: none;">
+      <div class="estimate-info">
+        <h3>Estimated Next Period</h3>
+        <div class="estimate-date-large" id="estimate-date">—</div>
+        <div class="estimate-formula-tag" id="estimate-formula">
+          Calculation: Last Period Start Date + Average Cycle Length
+        </div>
+      </div>
+      <div>
+        <div class="estimate-badge" id="estimate-badge">Upcoming</div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <section class="stats-grid">
+      <!-- Last Period -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Last Period Start</span>
+          <span class="stat-icon">🩸</span>
+        </div>
+        <div class="stat-value" id="stat-last-period" style="font-size: 1.5rem;">—</div>
+        <div class="stat-subtitle">Most recent cycle entry</div>
+      </div>
+
+      <!-- Average Cycle Length -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Avg Cycle Length</span>
+          <span class="stat-icon">🔄</span>
+        </div>
+        <div class="stat-value" id="stat-avg-cycle">—</div>
+        <div class="stat-subtitle">Days between cycle starts</div>
+      </div>
+
+      <!-- Average Period Duration -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Avg Period Duration</span>
+          <span class="stat-icon">⏳</span>
+        </div>
+        <div class="stat-value" id="stat-avg-duration">—</div>
+        <div class="stat-subtitle">Length of flow in days</div>
+      </div>
+
+      <!-- Total Cycles -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Total Recorded</span>
+          <span class="stat-icon">📑</span>
+        </div>
+        <div class="stat-value" id="stat-total-cycles">0</div>
+        <div class="stat-subtitle">Logged cycles in system</div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         Interactive Cycle Calendar with Red Period Highlights
+         ======================================================================== -->
+    <section class="calendar-card" id="cycle-calendar-section">
+      <div class="calendar-top-bar">
+        <div class="calendar-title-group">
+          <div class="calendar-month-year" id="calendar-month-year">October 2026</div>
+          <div style="display: flex; gap: 0.35rem;">
+            <button class="calendar-nav-btn" onclick="prevMonth()" title="Previous Month">&larr;</button>
+            <button class="calendar-nav-btn" onclick="goToTodayMonth()" title="Jump to Today">Today</button>
+            <button class="calendar-nav-btn" onclick="nextMonth()" title="Next Month">&rarr;</button>
+          </div>
+        </div>
+
+        <!-- Visual Legend -->
+        <div class="calendar-legend">
+          <div class="legend-item">
+            <span class="legend-dot period-logged"></span>
+            <span>Period Days (Red)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot period-estimated"></span>
+            <span>Estimated Next Period</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot today-dot"></span>
+            <span>Today</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekday Headers -->
+      <div class="calendar-grid-header">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+      </div>
+
+      <!-- Days Grid -->
+      <div class="calendar-grid-days" id="calendar-grid-days">
+        <!-- Dynamically rendered via calendar.js -->
+      </div>
+
+      <!-- Clicked Day Detail Bar -->
+      <div class="calendar-day-detail" id="calendar-day-detail">
+        <div>
+          <span>💡 Click any date on the calendar to view cycle details or log a period.</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="openAddCycleModal()">+ Record Cycle</button>
+      </div>
+    </section>
+
+    <!-- Recent Cycles Section -->
+    <section class="card-section">
+      <div class="section-header">
+        <h2>Recent Cycle History</h2>
+        <a href="/history" class="btn btn-outline btn-sm">View All Records &rarr;</a>
+      </div>
+
+      <div id="recent-cycles-table-container" class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Period Duration</th>
+              <th>Cycle Length</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recent-cycles-body">
+            <!-- Dynamically populated via dashboard.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State when no cycles exist -->
+      <div id="cycles-empty-state" class="empty-state" style="display: none;">
+        <div class="empty-icon">🌸</div>
+        <h3>No Menstrual Cycles Logged Yet</h3>
+        <p>Record your first cycle to start calculating your cycle averages and upcoming period estimates.</p>
+        <button class="btn btn-primary" onclick="openAddCycleModal()">+ Add Your First Cycle</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       Add / Edit Cycle Modal
+       ======================================================================== -->
+  <div class="modal-overlay" id="cycle-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="cycle-modal-title">Record Menstrual Cycle</h3>
+        <button class="modal-close" onclick="closeCycleModal()">&times;</button>
+      </div>
+
+      <form id="cycle-form">
+        <input type="hidden" id="cycle-id">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cycle-start-date" class="form-label">Start Date <span class="required">*</span></label>
+              <input type="date" id="cycle-start-date" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+              <label for="cycle-end-date" class="form-label">End Date</label>
+              <input type="date" id="cycle-end-date" class="form-input">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cycle-duration" class="form-label">Period Duration (Days) <span class="required">*</span></label>
+              <input type="number" id="cycle-duration" class="form-input" min="1" max="30" value="5" required>
+              <div class="form-help">Number of bleeding days</div>
+            </div>
+
+            <div class="form-group">
+              <label for="cycle-length" class="form-label">Cycle Length (Days) <span class="required">*</span></label>
+              <input type="number" id="cycle-length" class="form-input" min="15" max="90" value="28" required>
+              <div class="form-help">Days from this start to next (default 28)</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cycle-notes" class="form-label">Notes (Optional)</label>
+            <textarea id="cycle-notes" class="form-textarea" placeholder="Symptoms, mood, cramps, flow heaviness, etc."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeCycleModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-cycle">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Delete Confirmation Modal
+       ======================================================================== -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3>Confirm Deletion</h3>
+        <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--color-text-main); margin-bottom: 0.5rem;">
+          Are you sure you want to delete this menstrual cycle record?
+        </p>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted);">
+          This action cannot be undone and your cycle averages will be updated immediately.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-delete">Yes, Delete Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div><strong>CycleCare</strong> &copy; 2026 &bull; Student Full-Stack Demonstration</div>
+      <ul class="footer-links">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/history">History</a></li>
+        <li><a href="javascript:void(0)" onclick="handleLogout()">Logout</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/cycles.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

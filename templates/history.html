@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cycle History - CycleCare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/dashboard" class="brand-logo">
+        <span class="brand-icon">🌸</span>
+        <span>CycleCare</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+          <li><a href="/history" class="nav-link active">Cycle History</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-buttons">
+        <button class="btn btn-primary btn-sm" onclick="openAddCycleModal()">+ Add Cycle</button>
+        <button class="btn btn-outline btn-sm" onclick="handleLogout()">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- History Page Content -->
+  <main class="container" style="flex: 1; padding-top: 2rem; padding-bottom: 3rem;">
+    
+    <div class="dashboard-header" style="padding-top: 0;">
+      <div class="dashboard-title-area">
+        <h1>Menstrual Cycle History</h1>
+        <p>Complete historical cycle logs. You can review, correct, or delete any record.</p>
+      </div>
+
+      <div>
+        <button class="btn btn-primary" onclick="openAddCycleModal()">
+          <span>➕</span> Add New Cycle
+        </button>
+      </div>
+    </div>
+
+    <!-- Educational Medical Disclaimer -->
+    <div class="disclaimer-banner">
+      <div class="disclaimer-icon">⚠️</div>
+      <div class="disclaimer-content">
+        <h4>Educational Project Notice & Medical Disclaimer</h4>
+        <p>
+          CycleCare is an educational full-stack demonstration. 
+          Historical cycle metrics reflect user inputs and should not be used as clinical diagnostic records or medical consultation.
+        </p>
+      </div>
+    </div>
+
+    <!-- Table Card Section -->
+    <div class="card-section">
+      <div class="section-header">
+        <h2>Logged Cycle Records (<span id="total-history-count">0</span>)</h2>
+      </div>
+
+      <div id="history-table-container" class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Period Duration</th>
+              <th>Cycle Length</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="history-cycles-body">
+            <!-- Dynamically populated via loadHistoryData() -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div id="history-empty-state" class="empty-state" style="display: none;">
+        <div class="empty-icon">📖</div>
+        <h3>No Cycle Records Yet</h3>
+        <p>You haven't added any cycle records yet. Click the button below to add your first entry.</p>
+        <button class="btn btn-primary" onclick="openAddCycleModal()">+ Add First Cycle</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       Add / Edit Cycle Modal
+       ======================================================================== -->
+  <div class="modal-overlay" id="cycle-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="cycle-modal-title">Record Menstrual Cycle</h3>
+        <button class="modal-close" onclick="closeCycleModal()">&times;</button>
+      </div>
+
+      <form id="cycle-form">
+        <input type="hidden" id="cycle-id">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cycle-start-date" class="form-label">Start Date <span class="required">*</span></label>
+              <input type="date" id="cycle-start-date" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+              <label for="cycle-end-date" class="form-label">End Date</label>
+              <input type="date" id="cycle-end-date" class="form-input">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cycle-duration" class="form-label">Period Duration (Days) <span class="required">*</span></label>
+              <input type="number" id="cycle-duration" class="form-input" min="1" max="30" value="5" required>
+              <div class="form-help">Bleeding duration</div>
+            </div>
+
+            <div class="form-group">
+              <label for="cycle-length" class="form-label">Cycle Length (Days) <span class="required">*</span></label>
+              <input type="number" id="cycle-length" class="form-input" min="15" max="90" value="28" required>
+              <div class="form-help">Days between period starts</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cycle-notes" class="form-label">Notes (Optional)</label>
+            <textarea id="cycle-notes" class="form-textarea" placeholder="Symptoms, mood, cramps, flow heaviness, etc."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeCycleModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-cycle">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Delete Confirmation Modal
+       ======================================================================== -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3>Confirm Deletion</h3>
+        <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--color-text-main); margin-bottom: 0.5rem;">
+          Are you sure you want to delete this menstrual cycle record?
+        </p>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted);">
+          This record will be permanently removed from your history.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-delete">Yes, Delete Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div><strong>CycleCare</strong> &copy; 2026 &bull; Student Full-Stack Demonstration</div>
+      <ul class="footer-links">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/history">History</a></li>
+        <li><a href="javascript:void(0)" onclick="handleLogout()">Logout</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/cycles.js') }}"></script>
+  <script>
+    // History page specific loading logic
+    document.addEventListener('DOMContentLoaded', () => {
+      loadHistoryData();
+    });
+
+    async function loadHistoryData() {
+      try {
+        const res = await fetch('/api/cycles');
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          showToast(data.message || 'Failed to load cycle history.', 'error');
+          return;
+        }
+
+        renderHistory(data.cycles || []);
+      } catch (err) {
+        console.error('Error fetching history:', err);
+        showToast('Network error while loading cycle history.', 'error');
+      }
+    }
+
+    function renderHistory(cycles) {
+      const countEl = document.getElementById('total-history-count');
+      const tableBody = document.getElementById('history-cycles-body');
+      const tableContainer = document.getElementById('history-table-container');
+      const emptyState = document.getElementById('history-empty-state');
+
+      if (countEl) countEl.textContent = cycles.length;
+
+      if (cycles.length === 0) {
+        if (tableContainer) tableContainer.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'block';
+      } else {
+        if (tableContainer) tableContainer.style.display = 'block';
+        if (emptyState) emptyState.style.display = 'none';
+
+        tableBody.innerHTML = cycles.map(cycle => `
+          <tr>
+            <td><strong>${formatDate(cycle.start_date)}</strong></td>
+            <td>${cycle.end_date ? formatDate(cycle.end_date) : '—'}</td>
+            <td><span class="badge-tag badge-primary">${cycle.period_duration} days</span></td>
+            <td><span class="badge-tag badge-neutral">${cycle.cycle_length} days</span></td>
+            <td style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${cycle.notes ? escapeHtml(cycle.notes) : '<span style="color: var(--color-text-light);">None</span>'}
+            </td>
+            <td>
+              <div class="table-actions">
+                <button class="btn btn-outline btn-sm" onclick="openEditCycleModal(${cycle.id})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal(${cycle.id})">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      try {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+          const year = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10) - 1;
+          const day = parseInt(parts[2], 10);
+          const d = new Date(year, month, day);
+          return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        return dateStr;
+      } catch (e) {
+        return dateStr;
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
